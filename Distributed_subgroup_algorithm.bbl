@@ -1,0 +1,84 @@
+\begin{thebibliography}{9}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\href}[2]{#2}
+\providecommand{\path}[1]{#1}
+\providecommand{\DOIprefix}{doi:}
+\providecommand{\ArXivprefix}{arXiv:}
+\providecommand{\URLprefix}{URL: }
+\providecommand{\Pubmedprefix}{pmid:}
+\providecommand{\doi}[1]{\href{http://dx.doi.org/#1}{\path{#1}}}
+\providecommand{\Pubmed}[1]{\href{pmid:#1}{\path{#1}}}
+\providecommand{\bibinfo}[2]{#2}
+\ifx\xfnm\relax \def\xfnm[#1]{\unskip,\space#1}\fi
+%Type = Article
+\bibitem[{Boyd et~al.(2011)Boyd, Parikh, Chu, Peleato, Eckstein
+  et~al.}]{boyd2011distributed}
+\bibinfo{author}{Boyd, S.}, \bibinfo{author}{Parikh, N.}, \bibinfo{author}{Chu,
+  E.}, \bibinfo{author}{Peleato, B.}, \bibinfo{author}{Eckstein, J.} et~al.
+  (\bibinfo{year}{2011}).
+\newblock \bibinfo{title}{Distributed optimization and statistical learning via
+  the alternating direction method of multipliers}.
+\newblock {\it \bibinfo{journal}{Foundations and Trends{\textregistered} in
+  Machine learning}\/},  {\it \bibinfo{volume}{3}\/}, \bibinfo{pages}{1--122}.
+%Type = Article
+\bibitem[{Everitt \& Hand(1981)}]{everitt1981finite}
+\bibinfo{author}{Everitt, B.}, \& \bibinfo{author}{Hand, D.}
+  (\bibinfo{year}{1981}).
+\newblock \bibinfo{title}{Finite mixture distributions chapman and hall}.
+\newblock {\it \bibinfo{journal}{New York}\/}, .
+%Type = Article
+\bibitem[{Farewell(1982)}]{farewell1982use}
+\bibinfo{author}{Farewell, V.~T.} (\bibinfo{year}{1982}).
+\newblock \bibinfo{title}{The use of mixture models for the analysis of
+  survival data with long-term survivors}.
+\newblock {\it \bibinfo{journal}{Biometrics}\/},  (pp.
+  \bibinfo{pages}{1041--1046}).
+%Type = Article
+\bibitem[{Ma \& Huang(2017)}]{ma2017concave}
+\bibinfo{author}{Ma, S.}, \& \bibinfo{author}{Huang, J.}
+  (\bibinfo{year}{2017}).
+\newblock \bibinfo{title}{A concave pairwise fusion approach to subgroup
+  analysis}.
+\newblock {\it \bibinfo{journal}{Journal of the American Statistical
+  Association}\/},  {\it \bibinfo{volume}{112}\/}, \bibinfo{pages}{410--423}.
+%Type = Article
+\bibitem[{Maugis et~al.(2009)Maugis, Celeux \&
+  Martin-Magniette}]{maugis2009variable}
+\bibinfo{author}{Maugis, C.}, \bibinfo{author}{Celeux, G.}, \&
+  \bibinfo{author}{Martin-Magniette, M.-L.} (\bibinfo{year}{2009}).
+\newblock \bibinfo{title}{Variable selection for clustering with gaussian
+  mixture models}.
+\newblock {\it \bibinfo{journal}{Biometrics}\/},  {\it \bibinfo{volume}{65}\/},
+  \bibinfo{pages}{701--709}.
+%Type = Article
+\bibitem[{Muth{\'e}n \& Shedden(1999)}]{muthen1999finite}
+\bibinfo{author}{Muth{\'e}n, B.}, \& \bibinfo{author}{Shedden, K.}
+  (\bibinfo{year}{1999}).
+\newblock \bibinfo{title}{Finite mixture modeling with mixture outcomes using
+  the em algorithm}.
+\newblock {\it \bibinfo{journal}{Biometrics}\/},  {\it \bibinfo{volume}{55}\/},
+  \bibinfo{pages}{463--469}.
+%Type = Article
+\bibitem[{Pauler \& Laird(2000)}]{pauler2000mixture}
+\bibinfo{author}{Pauler, D.~K.}, \& \bibinfo{author}{Laird, N.~M.}
+  (\bibinfo{year}{2000}).
+\newblock \bibinfo{title}{A mixture model for longitudinal data with
+  application to assessment of noncompliance}.
+\newblock {\it \bibinfo{journal}{Biometrics}\/},  {\it \bibinfo{volume}{56}\/},
+  \bibinfo{pages}{464--472}.
+%Type = Inproceedings
+\bibitem[{Rasmussen(2000)}]{rasmussen2000infinite}
+\bibinfo{author}{Rasmussen, C.~E.} (\bibinfo{year}{2000}).
+\newblock \bibinfo{title}{The infinite gaussian mixture model}.
+\newblock In {\it \bibinfo{booktitle}{Advances in neural information processing
+  systems}\/} (pp. \bibinfo{pages}{554--560}).
+%Type = Article
+\bibitem[{Shen \& He(2015)}]{shen2015inference}
+\bibinfo{author}{Shen, J.}, \& \bibinfo{author}{He, X.} (\bibinfo{year}{2015}).
+\newblock \bibinfo{title}{Inference for subgroup analysis with a structured
+  logistic-normal mixture model}.
+\newblock {\it \bibinfo{journal}{Journal of the American Statistical
+  Association}\/},  {\it \bibinfo{volume}{110}\/}, \bibinfo{pages}{303--312}.
+
+\end{thebibliography}

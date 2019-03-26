@@ -1,0 +1,103 @@
+\documentclass[review]{elsarticle}
+
+\usepackage{lineno,hyperref}
+\modulolinenumbers[5]
+
+\journal{Journal of Statistical computing}
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Elsevier bibliography styles
+%%%%%%%%%%%%%%%%%%%%%%%
+%% To change the style, put a % in front of the second line of the current style and
+%% remove the % from the second line of the style you would like to use.
+%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Numbered
+%\bibliographystyle{model1-num-names}
+
+%% Numbered without titles
+%\bibliographystyle{model1a-num-names}
+
+%% Harvard
+%\bibliographystyle{model2-names.bst}\biboptions{authoryear}
+
+%% Vancouver numbered
+%\usepackage{numcompress}\bibliographystyle{model3-num-names}
+
+%% Vancouver name/year
+%\usepackage{numcompress}\bibliographystyle{model4-names}\biboptions{authoryear}
+
+%% APA style
+%\bibliographystyle{model5-names}\biboptions{authoryear}
+
+%% AMA style
+%\usepackage{numcompress}\bibliographystyle{model6-num-names}
+
+%% `Elsevier LaTeX' style
+\bibliographystyle{model5-names}
+\biboptions{authoryear}
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{Exploration of heterogeneous treatment effects under distributed storage }
+
+%% Group authors per affiliation:
+\author{Shuang Zhang}
+
+\begin{abstract}
+Exploration of heterogeneous treatment effects under distributed storage 
+\end{abstract}
+
+\begin{keyword}
+subgroup analysis, two-step algorithm, distributed storaged, ADMM
+\end{keyword}
+
+\end{frontmatter}
+
+\linenumbers
+
+\section{Introduction}
+With different industry life cycle stages, the pharmaceutical industry has also produced different medical theories. At present,  based on the individualized characteristics of different patients, individualized medical theory will be an inevitable trend of the medical industry. Complex analytical tools are needed in personalized treatment strategies. One of the key statistical challenges is to correctly identify subgroups from heterogeneous populations. To address this issue, a popular approach is to use a mixture model analysis \cite{everitt1981finite}, treating data as coming from different subgroups, each with its own parameter values. \cite{farewell1982use} analysis the survival data with long-term survivors by mixture model. All along, the mixture model is continuous improvement. \cite{muthen1999finite} discussed the analysis of an extended finite mixture model where the latent classes corresponding to the mixture components for one set of observed variables influence a second set of observed variables. \cite{pauler2000mixture} introduced a general finite mixture of nonlinear hierarchical models that allows estimates of component membership probabilities and random effect distributions for longitudinal data arising from multiple subpopulations. \cite{rasmussen2000infinite} presented the infinite gaussian mixture model. \cite{maugis2009variable} discussed variable selection for clustering with gaussian mixture models. \cite{shen2015inference} proposed a structured logistic-normal mixture model for the purpose of identifying a subgroup that has an enhanced treatment effect as well as the variables that are predictive of the subgroup membership. The mixture model-based approach needs to specify an underlying distribution and the number of mixture components in the population which is often difficult to do in practice. To solve this problem, \cite{ma2017concave} proposed a concave pairwise fusion approach to subgroup analysis. They developed an alternating direction method of multipliers algorithm with concave penalties. With the rapid development of data storage and communication, the medical industry has also developed a new direction. The data exchange between hospitals has improved the accuracy of diagnosis and treatment. So far, statistical research on subgroup analysis has remained at the stand-alone level. There is few approach to do the subgroup analysis over the distributed storaged data. 
+
+For distributed storage data, we can abstract the computing structure into two parts, one is the master and the other is the workers. All data interactions only occur between the master and the worker and no data communication between workers. The assumption of such a computing environment fits in with the operational logic of the actual distributed computing platform, and on the other hand, the data security of each node can also be guaranteed. more specifically, all sample data only exists in each worker node. There is no sample data in the master, which only do the map-reduce operation, and some necessary calculations after reduce data from all workers.
+
+In this paper, We propose a two-step approach that allows us to minimize the influence of the limitations of data space separation and to perform subgroup analysis from an overall perspective. Let $y_{im}$ be the response variable for the $i^{th}$ subject in $m^{th}$ node. $X_{im}=(x_{im1},...,x_{imp})$ presents a set of covariates. We consider subgroup analysis of the heterogeneity driven by unknown or unobserved latent factors. Hence, we consider
+\begin{equation}
+y_{im} = \mu_{im} + x_{im}^T\beta + \epsilon_{im}, i=1,...,n_m; m=1,...,M,
+\label{equ:1}
+\end{equation}
+where $\mu_{im}$ is unknown subject-specific intercepts, $\beta = (\beta_1,...\beta_p)^T$ is the vector of unknown coefficients for $x_{im}$, and $\epsilon_{im}$ is the error term independent of $x_{im}$ with $E(\epsilon_{im})=0$ and $Var(\epsilon_{im})=\sigma^2$. Model \ref{equ:1} can be divided into two parts, combined with the actual situation of biomedicine, $x_{im}$ represents some patient-related essential variables, such as age, gender, etc. $\mu_{im}$ represents the factors contributing to the heterogeneity, such as different treatments. Then $\mu_{im}$ can be written as $\mu_{im}=\mu+z_{im}^T\theta$, where $z_{im}$ reprensents the different treatment effects. It is worth noting that we are talking about personalized medicine, which means different patients have different effects on the same treatment $\mu_{im}=\mu+z_{im}^T\theta_{im}$. Thus, model \ref{equ:1} becomes
+\begin{equation}
+\label{equ:2}
+y_{im} = \mu+z_{im}^T\theta_{im} + x_{im}^T\beta + \epsilon_{im}, i=1,...,n_m; m=1,...,M.
+\end{equation}
+Throughout this paper, we focus on model\ref{equ:2} by considering that even the samples of one subgroup are distributed storaged, our estimation method can still correctly identify their subgroups. Several authors have studied the problem of exploring homogeneity effects of covariates over a single machine. \cite{ma2017concave} proposed a concave pairwise fusion penalized least squares approach for this purpose and derive an alternating direction method of multipliers algorithm \cite{boyd2011distributed} for implementing the following approach.
+\begin{equation}
+\label{equ:3}
+Q_n(\mu, \beta;\lambda) = \frac{1}{2}\sum_{i=1}^n(y_i-\mu_i-X_i^T\beta)^2+\sum_{1\leq i<j\leq n}P(|\mu_i-\mu_j|,\lambda),
+\end{equation}
+where $P(\cdot,\lambda)$ is a concave penalty function with a tuning parameter $\lambda\geq0$. However, when we introduce the node information, the objective function \ref{equ:3} is very difficult to solve. The objective function becomes
+as follow.
+\begin{equation}
+\label{equ:4}
+Q_n(\mu, \beta;\lambda) = \frac{1}{2}\sum_{m=1}^M\sum_{i=1}^{n_m}(y_{im}-\mu_{im}-X_{im}^T\beta)^2+\sum_{1\leq i<j\leq \sum_m{n_m}}P(|\mu_{im}-\mu_{jm}|,\lambda).
+\end{equation}
+Compared with function \ref{equ:3}, function \ref{equ:4} brings a lot of problems that make the original estimation method malfunction. One problem is that The operation on matrix X becomes unrealizable. Another problem is $|\mu_i-\mu_j|, 1\leq i<j\leq \sum_m{n_m}$ needs a lot of data interaction, almost impossible in actual operation. Therefore, we proposed a two-step algorithm based on ADMM algorithm and stratified sampling. Through the operation of map-reduce and two-step iteration, our algorithm can accurately identity the subgroups of data in each physical node with low computational cost.
+
+The rest of this paper is organized as follows. In Section \ref{sec:2} we describe the two-step approach in detail. In Section \ref{sec:3} we solve the two-step approach by ADMM algorithm. In Section\ref{sec:4}, we do some numerical simulation in the spark cluster mode, compared with the calculation results when the data is stored in a single machine. In Section \ref{sec:5}, the real data is distributed at different physical nodes, mimicking the hospital data interoperability.
+
+\section{Two-step Algorithm over distributed storaged data}\label{sec:2}
+
+\section{Computation}\label{sec:3}
+
+\section{Simulation studies}\label{sec:4}
+
+\section{Real data example}\label{sec:5}
+\section*{References}
+
+\bibliography{mybibfile}
+
+\end{document}
