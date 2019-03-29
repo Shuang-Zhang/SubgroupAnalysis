@@ -1,5 +1,4 @@
 \documentclass[review]{elsarticle}
-
 \usepackage{lineno,hyperref}
 \modulolinenumbers[5]
 
@@ -85,12 +84,21 @@ as follow.
 \label{equ:4}
 Q_n(\mu, \beta;\lambda) = \frac{1}{2}\sum_{m=1}^M\sum_{i=1}^{n_m}(y_{im}-\mu_{im}-X_{im}^T\beta)^2+\sum_{1\leq i<j\leq \sum_m{n_m}}P(|\mu_{im}-\mu_{jm}|,\lambda).
 \end{equation}
-Compared with function \ref{equ:3}, function \ref{equ:4} brings a lot of problems that make the original estimation method malfunction. One problem is that The operation on matrix X becomes unrealizable. Another problem is $|\mu_i-\mu_j|, 1\leq i<j\leq \sum_m{n_m}$ needs a lot of data interaction, almost impossible in actual operation. Therefore, we proposed a two-step algorithm based on ADMM algorithm and stratified sampling. Through the operation of map-reduce and two-step iteration, our algorithm can accurately identity the subgroups of data in each physical node with low computational cost.
+Compared with function \ref{equ:3}, function \ref{equ:4} brings a lot of problems that make the original estimation method malfunction. One problem is that The operation on matrix X becomes unrealizable. Another problem is $|\mu_i-\mu_j|, 1\leq i<j\leq \sum_m{n_m}$ needs a lot of data interaction, almost impossible in actual operation. 
+
+In large-scale data clustering, sampling is an efficient and most widely used approximation technique. \cite{neyman1934two} elaborated on two sampling methods: the method of stratified sampling and the method of purposive selection. Recently, large-scale data analysis is a challenging and relevant task for present-day research and industry. Many statisticians use stratified sampling to subtly solve the problem of large data classification. \cite{cervellera2018distribution} analyzed the technique of stratified sampling from the point of view of distances between probabilities, and introduced an algorithm, based on recursive binary partition of the input space, aimed at obtaining samples that are distributed as much as possible as the original data.  \cite{zhao2019stratified} proposed a stratified sampling based clustering algorithm for large-scale data.
+%在我们的问题中，如何在各医院的数据库中抽取病人观测数据，使得我们可以高效，准确地对各医院共享数据中的全部病人定义亚组。这样可以充分发挥医院数据交互的优势，避免地域性或医院规模带来的样本小，样本不均带来的误诊。
+Therefore, we proposed a two-step fusion penalized algorithm based on ADMM algorithm and stratified sampling. Through the operation of map-reduce and two-step iteration, our algorithm can accurately identity the subgroups of data in each physical node with low computational cost.
 
 The rest of this paper is organized as follows. In Section \ref{sec:2} we describe the two-step approach in detail. In Section \ref{sec:3} we solve the two-step approach by ADMM algorithm. In Section\ref{sec:4}, we do some numerical simulation in the spark cluster mode, compared with the calculation results when the data is stored in a single machine. In Section \ref{sec:5}, the real data is distributed at different physical nodes, mimicking the hospital data interoperability.
 
 \section{Two-step Algorithm over distributed storaged data}\label{sec:2}
-
+For estimate model\ref{equ:1}, the objective function of the concave pairwise fusion penalized least squares
+approach is 
+$$
+Q_n(\mu, \beta;\lambda) = \frac{1}{2}\sum_{m=1}^M\sum_{i=1}^{n_m}(y_{im}-\mu_{im}-X_{im}^T\beta)^2+\sum_{1\leq i<j\leq \sum_m{n_m}}P(|\mu_{im}-\mu_{jm}|,\lambda).
+$$
+Comparing with the
 \section{Computation}\label{sec:3}
 
 \section{Simulation studies}\label{sec:4}
