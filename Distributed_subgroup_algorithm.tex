@@ -1,6 +1,18 @@
 \documentclass[review]{elsarticle}
 \usepackage{lineno,hyperref}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{mathrsfs}
+\usepackage{amsmath}
+\usepackage{caption}
+\usepackage{graphicx, subfig}
+\usepackage{booktabs}
+\usepackage{threeparttable}
+\usepackage{multirow}
+\renewcommand{\arraystretch}{1.5} %控制行高
 \modulolinenumbers[5]
+\renewcommand{\algorithmicrequire}{ \textbf{Input:}} %Use Input in the format of Algorithm
+\renewcommand{\algorithmicensure}{ \textbf{Output:}} %UseOutput in the format of Algorithm
 
 \journal{Journal of Statistical computing}
 
@@ -68,7 +80,7 @@ In this paper, We propose a two-step approach that allows us to minimize the inf
 y_{im} = \mu_{im} + x_{im}^T\beta + \epsilon_{im}, i=1,...,n_m; m=1,...,M,
 \label{equ:1}
 \end{equation}
-where $\mu_{im}$ is unknown subject-specific intercepts, $\beta = (\beta_1,...\beta_p)^T$ is the vector of unknown coefficients for $x_{im}$, and $\epsilon_{im}$ is the error term independent of $x_{im}$ with $E(\epsilon_{im})=0$ and $Var(\epsilon_{im})=\sigma^2$. Model \ref{equ:1} can be divided into two parts, combined with the actual situation of biomedicine, $x_{im}$ represents some patient-related essential variables, such as age, gender, etc. $\mu_{im}$ represents the factors contributing to the heterogeneity, such as different treatments. Then $\mu_{im}$ can be written as $\mu_{im}=\mu+z_{im}^T\theta$, where $z_{im}$ reprensents the different treatment effects. It is worth noting that we are talking about personalized medicine, which means different patients have different effects on the same treatment $\mu_{im}=\mu+z_{im}^T\theta_{im}$. Thus, model \ref{equ:1} becomes
+where $\mu_{im}$ is unknown subject-specific intercepts, $\beta = (\beta_1,...\beta_p)^T$ is the vector of unknown coefficients for $x_{im}$, and $\epsilon_{im}$ is the error term independent of $x_{im}$ with $E(\epsilon_{im})=0$ and $Var(\epsilon_{im})=\sigma^2$. Here we assume that $y_im$ are from K different groups with $K\geq 1$ and the data from the same group have the same intercept. In other words, let $\mathcal{G}=(\mathcal{G}_1,...,\mathcal{G}_K)$ be a partition of \{11,...,$n_1$1,...,$n_mm$\}. We have $\mu_{im}=\alpha_k$ for all $im\in \mathcal{G}_k$, where $\alpha_k$ is the common value for the $\mu_{im}$'s from group $\mathcal{G}_k$. Model \ref{equ:1} can be divided into two parts, combined with the actual situation of biomedicine, $x_{im}$ represents some patient-related essential variables, such as age, gender, etc. $\mu_{im}$ represents the factors contributing to the heterogeneity, such as different treatments. Then $\mu_{im}$ can be written as $\mu_{im}=\mu+z_{im}^T\theta$, where $z_{im}$ reprensents the different treatment effects. It is worth noting that we are talking about personalized medicine, which means different patients have different effects on the same treatment $\mu_{im}=\mu+z_{im}^T\theta_{im}$. Thus, model \ref{equ:1} becomes
 \begin{equation}
 \label{equ:2}
 y_{im} = \mu+z_{im}^T\theta_{im} + x_{im}^T\beta + \epsilon_{im}, i=1,...,n_m; m=1,...,M.
@@ -82,7 +94,7 @@ where $P(\cdot,\lambda)$ is a concave penalty function with a tuning parameter $
 as follow.
 \begin{equation}
 \label{equ:4}
-Q_n(\mu, \beta;\lambda) = \frac{1}{2}\sum_{m=1}^M\sum_{i=1}^{n_m}(y_{im}-\mu_{im}-X_{im}^T\beta)^2+\sum_{1\leq i<j\leq \sum_m{n_m}}P(|\mu_{im}-\mu_{jm}|,\lambda).
+Q_n(\mu, \beta;\lambda) = \frac{1}{2}\sum_{m=1}^M\sum_{i=1}^{n_m}(y_{im}-\mu_{im}-X_{im}^T\beta)^2+\sum_{1\leq i<j\leq \sum_m{n_m}}P(|\mu_{i}-\mu_{j}|,\lambda).
 \end{equation}
 Compared with function \ref{equ:3}, function \ref{equ:4} brings a lot of problems that make the original estimation method malfunction. One problem is that The operation on matrix X becomes unrealizable. Another problem is $|\mu_i-\mu_j|, 1\leq i<j\leq \sum_m{n_m}$ needs a lot of data interaction, almost impossible in actual operation. 
 
@@ -96,14 +108,238 @@ The rest of this paper is organized as follows. In Section \ref{sec:2} we descri
 For estimate model\ref{equ:1}, the objective function of the concave pairwise fusion penalized least squares
 approach is 
 $$
-Q_n(\mu, \beta;\lambda) = \frac{1}{2}\sum_{m=1}^M\sum_{i=1}^{n_m}(y_{im}-\mu_{im}-X_{im}^T\beta)^2+\sum_{1\leq i<j\leq \sum_m{n_m}}P(|\mu_{im}-\mu_{jm}|,\lambda).
+Q_n(\mu, \beta;\lambda) = \frac{1}{2}\sum_{m=1}^M\sum_{i=1}^{n_m}(y_{im}-\mu_{im}-X_{im}^T\beta)^2+\sum_{1\leq i<j\leq \sum_m{n_m}}P(|\mu_{i}-\mu_{j}|,\lambda).
 $$
-Comparing with the
+By the idea of ADMM algorithm, we can introduce a new set of parameters to separate the penalty function. But no matter how we introduce the parameters, an problem is that a matrix operation of $X(X^TX)^{-1}X^T$ can not be avoid in updating $u_{im}$ and $\beta$. From a medical perspective, $\beta$ presents the common coefficients for essential variables. This incidates that if the data of a single hospital database is sufficient, maybe we can estimate $\beta$ accurately with $X_m$. However, the study of homogeneity, that is, the estimation of $u_{im}$, requires a comprehensive consideration of hospital data in various regions. Intuitively, the patient is rare for some hospital, but there may be sufficient sample references added up in all hospital data. For such patients, if the data of all hospitals can be comprehensively considered, the subgroup analysis will be more accurate. The essential reason why ADMM can not be used directly to solve the objective function is that it is difficult to calculate the oparation of super-large matrix X. So here we consider stratified sampling, which reduces the observation sample matrix, making the calculation possible. Now the problem  is how stratified sampling to preserve homogeneous distribution. 
+
+In this paper, we propose a two-step fusion penalized algorithm. Firstly, we apply fusion penalized model in each node to get the hierarchy. The hierarchy obtained by this method can preserve the homogeneous distribution. The objective function in each node is
+\begin{equation}
+\label{equ:5}
+Q_{nm}(\mu_m, \beta_m;\lambda) = \frac{1}{2}\sum_{i=1}^{n_m}(y_{im}-\mu_{im}-X_{im}^T\beta_m)^2+\sum_{1\leq i<j\leq n_m}P(|\mu_{im}-\mu_{jm}|,\lambda),
+\end{equation}
+where $\mu=(\mu_{1m},...,\mu_{n_mm})$, $m$ presents the index of node, and $P(\cdot,\lambda)$ is a concave penalty function with a tunning parameter $\lambda>0$. In model \ref{equ:5}, the penalty can shrinks some of $\mu_{im}-\mu_{jm}$ to zero, so that we can partition observations into subgroups. The tunning parameter $\lambda$ needs to trades off the loss and penalty to get meaningful solution. Our approach is running the algorithm on a grid of $\lambda_s$ in a decrease order with warm-start and choosing the one that minimizes certain selection rule, such as AIC, BIC, etc. As for the penalty function, we choose those who can produce unbiased estimates, which is SCAD proposed by \cite{fan2001variable} and MCP proposed by \cite{zhang2010nearly}. These concave penalties
+enjoy the sparsity as the L1 penalty that it can automatically yield zero estimates.
+
+Secondly, we run stratified sampling based on the subgroup analysis of each node, then reduce the samples to the master and apply the fusion penalty approach. We take proportional allocation strategy in stratified sampling, and the size of the sample in each stratum is taken in proportion to the size of the stratum. After sampling, we run the fusion penalty approach to the samples on master, the objective function is
+\begin{equation}
+\label{equ:6}
+Q_n(\mu,\beta;\lambda) = \frac{1}{2}\sum_{i=1}^n(y_i-\mu_i-X_i^T\beta)^2+\sum_{1\leq i<j\leq n}P(|\mu_i-\mu_j|,\lambda).
+\end{equation}
+Overall, we state the details of two-step fusion penalty in algorithm \ref{alg:1}
+\begin{algorithm}
+\caption{Two-step fusion penalty}
+\label{alg:1}
+\begin{algorithmic}[1]
+\REQUIRE ~~\\
+The set of observation covariates $X_m$ at each node.
+The set of response variable $y_m$ for the subjects at each node.
+\ENSURE ~~\\
+Subject-specific intercepts $\mu_{im}$ of each observation in model \ref{equ:1}.\\
+Common coefficients $\beta$ for $X$ in model \ref{equ:1}.
+
+\STATE Computing $\mu_m,\beta_m: \arg\min\{Q_{nm}(\mu_m, \beta_m;\lambda)\}$ at each node. 
+\label{step:1}
+\STATE Reducing $\alpha_k$ and $\mathcal{G}$ from each node and the sampling number $n_k$ of layer $k$ is $ \frac{|\mathcal{G}_k|}{\sum_{k=1}^{K}\mathcal{G_k}}$.
+\label{step:2}
+\STATE Extracting $n_k$ samples $X'_k$ in $\mathcal{G}_k$ at each node for $k=1,...,K$ and reducing to master.
+\label{step:3}
+\STATE Computing $\mu',\beta':\arg\min\{Q_n(\mu,\beta;\lambda)\}$ at master based on $X'$.
+\STATE Let $\beta=\beta'$ for each $X_{im}$ and $y_{im}$ at $m^{th}$ node, $\mu_{im}=\arg\min_{\mu_{im}\in\mu'}(y_{im}-\mu_{im}-X_{im}^T\beta)^2$. 
+\RETURN $\mu_{im}$ and $\beta$.
+\end{algorithmic}
+\end{algorithm}
 \section{Computation}\label{sec:3}
-
+The estimation tast in minimization \ref{equ:5} is basically equal to minimization \ref{equ:6}. The only difference is that \ref{equ:5} applies to local data of each node and \ref{equ:6} applies to the reduced data at master. So we only discuss how to get the solution of minimization \ref{equ:6}, which is
+\begin{equation}
+\label{equ:7}
+\mu, \beta = \arg\min_{\mu,\beta}\left\{\frac{1}{2}\sum_{i=1}^n(y_i-\mu_i-X_i^T\beta)^2+\sum_{1\leq i<j\leq n}P(|\mu_i-\mu_j|,\lambda)\right\}
+\end{equation}
+The unconstraint problem \ref{equ:7} can be recast as
+\begin{equation}
+\label{equ:8}
+\begin{array}{cc}
+\mbox{minimize~~~~} & \frac{1}{2}\sum_{i=1}^n(y_i-\mu_i-X_i^T\beta)^2+\sum_{1\leq i<j\leq n}P(|\eta_{ij}|,\lambda)\\
+\mbox{subject to~~~~} & \eta_{ij}=\mu_i-\mu_j
+\end{array}
+\end{equation}
+The augmented Lagrangian function \cite{boyd2011distributed} of \ref{equ:8} is
+\begin{equation}
+\label{equ:9}
+\begin{aligned}
+L_{a_{11},...,a_{1n},...,a_{nn}}&=\frac{1}{2}\sum_{i=1}^n(y_i-\mu_i-X_i^T\beta)^2+\sum_{1\leq i<j\leq n}P(|\eta_{ij}|,\lambda)\\
+&+\sum_{1\leq i<j\leq n}(\frac{a_{ij}}{2}\lVert \mu_i-\mu_j-\eta_{ij}\rVert+<\mu_i-\mu_j-\eta_{ij}, v_{ij}>),
+\end{aligned}
+\end{equation}
+where $v_{ij}$ are the Lagrangian multipliers related to equality constraint $\eta_{ij}=\mu_i-\mu_j$ for $1\leq i<j\leq n$, and $a_{ij}$ are the corresponding positive penalties parameters. The algorithm for solving \ref{equ:9} updates the primal variables $\mu$, $\beta$, $\eta$ via block coordinate descent in a closed form and updates dual variables $v_{ij}$ via one step gradient ascent. we state the details of this algorithm in algorithm \ref{alg:2}.
+ \begin{algorithm}[H]
+ 	\label{alg:2}
+ 	\caption{Minimize $Q_n(\mu,\beta;\lambda)$}
+ 	\begin{algorithmic}[1]
+ 		\REQUIRE
+ 		Fix the values of $\lambda$, $a_{ij}$,  maximum iteration number $\textrm{It}_{\max}$, and initial values of  $\mu_{ij}^0$,$\beta^0$,$\eta_{ij}^0$ and $v_{ij}^0$.
+ 		\ENSURE $\beta$ and $\mu$
+ 		\FOR {$k = 0,1..., \textrm{It}_{\max}$.}
+ 		\STATE For given $\eta^{(k)}$ and $v^{(k)}$, updating $\mu^{(k+1)}$ and $\beta^{(k+1)}$
+ 		\begin{equation}\label{equ:10}
+ 		\mu^{(k+1)} = \arg\min_{\mu}L(\mu,\beta,\eta^{(k)},v^{(k)})
+ 		\end{equation}
+ 		and
+ 		\begin{equation}\label{equ:11}
+ 		\beta^{(k+1)} = \arg\min_{\beta}L(\mu^{(k+1)},\beta,\eta^{(k)},v^{(k)})
+ 		\end{equation}
+ 		\STATE Updating $\eta^{(k+1)}$ based on different penalty function
+ 		\begin{equation}\label{equ:12}
+ 		\eta^{(k+1)} = \arg\min_{\eta}L(\mu^{(k+1)},\beta^{(k+1)},\eta,v^{(k)})
+ 		\end{equation}
+ 		\STATE Updating $v^{(k+1)}$
+ 		\begin{equation}\label{equ:13}
+ 		v_{ij}^{(k+1)}=v_{ij}^{(m)} + a_{ij}(\mu_i^{(k+1)}-\mu_j^{(k+1)}-\eta_{ij}^{(k+1)})
+ 		\end{equation}
+ 		\STATE Check stop condition.
+ 		\ENDFOR
+ 	\end{algorithmic}
+ \end{algorithm}
+The subproblems \ref{equ:10} to \ref{equ:13} are given in closed form solutions with a broad class of penalties. 
+The detailed derivation is shown in the Appendix A.
 \section{Simulation studies}\label{sec:4}
+In this paper, the simulation is based on Spark platform. Apache Spark is a fast universal computing engine designed for large-scale data processing. Spark is a general parallel framework of Hadoop MapReduce-like open source in UC Berkeley AMP lab (AMP Lab, University of California, Berkeley). Spark has the advantages of Hadoop MapReduce. But unlike MapReduce, the output of Job can be saved in memory so that it no longer needs to read and write HDFS. So Spark is better suited for data mining and machine learning, the algorithm of MapReduce which needs to be iterated.
 
+We generate data from the following model
+\begin{equation}
+\label{equ:14}
+y_i = \mu_i + x_i^T\beta+\epsilon_i, i=1,...,n,
+\end{equation}
+where $x_i=(x_{i1},...,x_{i5})^T$ are generated from the multivariate normal distribution $N(0,\Sigma)$, $\Sigma=(\sigma_{kj})$ and $\sigma_{kj}=0.5^{|k-j|}$. We simulate $\beta=(\beta_1,...,\beta_5)^T$ from independent Uniform $[0.5, 1]$. We generate $\mu_i$ from two different values $-\alpha$ and $\alpha$ with equal probabilities. More specific, we generate $\mu_i$ from the distribution: $p(\mu_i=-\alpha)=p(\mu_i=\alpha)=1/2$. In our analysis, we compare the performance of the estimators by using MCP, SCAD and weighted $L_1$ penalty
+\begin{equation}
+\label{equ:15}
+P(|\mu_i-\mu_j|,\lambda)=\lambda w_{ij}|\mu_i-\mu_j|,
+\end{equation}
+where $w_{ij}$ presents the weights. For the $L_1$ penalty weights, \cite{ma2017concave} proposed a Gaussian kernel defined on the distance of two points $\exp(-\phi(y_i-y_j)^2)$, where the constant $\phi$ is nonnegative. When $\phi=0$, \ref{equ:15} turns to be the Lasso penalty. Here we consider 100 realizations with $n=100$, $\alpha={1,1.5,2}$ and $\phi={0,0.5,1,2}$. We select $\lambda$ by minimizing the modified BIC
+\begin{equation}
+BIC=\log\left[\sum_{i=1}^n(y_i-\hat{\mu}_i-x_i^T\hat{\beta})^2/n\right]+C_n\frac{\log n}{n}(\hat{K}+p),
+\end{equation}
+where $C_n=c\log(\log(n+p))$, $n+p$ is the number of components in $\mu$ and $\beta$, and $c$ is a positive constant.
+We evaluate the algorithm by the model clustering ability, the estimation accuracy and the computational speed. Therefore, we consider the following criterias:
+\begin{enumerate}
+	\item The average value and the standard error of the square root of the mean squared errors(MSE) for the estimated value of $\mu$ and $\beta$
+	\begin{align}
+	MSE(\hat{\mu})&=\lVert \hat{\mu}-\mu\rVert/\sqrt{n},\\
+	MSE(\hat{\beta})&=\lVert\hat{\beta}-\beta\rVert/\sqrt{p}.
+	\end{align}
+	\item The mean, median and standard error(s.e.) of $\hat{K}$.
+	\item The Rand Index measure \cite{rand1971objective} by:
+	$$RI=\frac{TP+TN}{TP+FP+FN+TN},$$
+	where a true positive (TP) decision assigns two observations from the same ground truth
+	group to the same cluster, a true negative (TN) decision assigns two observations from
+	different groups to different clusters, a false positive (FP) decision assigns two observations
+	from different groups to the same cluster, and a false negative (FN) decision assigns two
+	observations from the same group to different clusters.
+	\item the running times(CPU time) for the whole process of calculating the estimate $\hat{\beta}$, $\hat{\mu}$.
+\end{enumerate}
+
+Figure \ref{fig:1} shows the solution paths for $\mu$ against $\lambda$ by using MCP, SCAD and weighted $L_1$ penalties with $\phi=0,0.5,1,2$, based on 100 realizations with $n=100$ and $\alpha=2$. 
+\begin{figure}
+\caption{Solution paths for $(\mu_1,...,\mu_n)$ against $\lambda$ values by using MCP, SCAD and weighted L1 penalties}
+\label{fig:1}
+\centering
+\includegraphics[width=.8\textwidth]{solution_path.png}
+\end{figure}
+
+From Table \ref{tab:1}, we compare the results of two algorithms in different computing environments. Our two-step fusion penalty distributed algorithm applies in data distributed storage computing environment, and the concave pairwise fusion approach applies in stand-alone environment. In order to study the influence of the space separation data storage on estimation, we set the same sample size. The difference in comparison is that in distributed environment, data is stored distributed in M nodes, and data of different nodes can not interact. In the stand-alone environment, all data are stored on a single computer. The results in Table \ref{tab:1} show that our algorithm can basically solve the problem of data space separation. The accuracy of the results obtained by our algorithm in distributed environment is comparable to that obtained by the concave pairwise fusion approach in single computer.
+\begin{table}[H]
+	\centering
+	\fontsize{5.5}{6}\selectfont
+	\begin{threeparttable}
+		\caption{The mean, median and standard error (s.e.) of $\hat{K}$ by the MCP, SCAD and weighted $L_1$ based on 100 realizations with n = 100 in distributed and stand-alone environment}
+		\label{tab:1}
+		\begin{tabular}{ccccccccccc}
+			\toprule
+			\multirow{2}{*}{$c$}&\multirow{2}{*}{Method}&
+			\multicolumn{3}{c}{ $\alpha=1$}&\multicolumn{3}{c}{$\alpha=1.5$}&\multicolumn{3}{c}{$\alpha=2$}\cr
+			\cmidrule(lr){3-5} \cmidrule(lr){6-8}\cmidrule(lr){9-11}
+			&&mean&median&s.e.&mean&median&s.e.&mean&median&s.e.\cr
+			\midrule
+			\multirow{8}{*}{$5$}&MCP&41.1\%&100\%&11.34&0.42&87.4\%&100\%&10.31&0.45&0.45\cr
+			&DisMCP&41.1\%&100\%&11.34&0.42&87.4\%&100\%&10.31&0.45&0.45\cr
+			&SCAD&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
+			&DisSCAD&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
+			&$L_1(\phi=1)$&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
+			&Dis$L_1(\phi=1)$&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
+			&$L_1(\phi=2)$&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
+			&Dis$L_1(\phi=2)$&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
+			\midrule
+			\multirow{8}{*}{$10$}&MCP&41.1\%&100\%&11.34&0.42&87.4\%&100\%&10.31&0.45&0.45\cr
+			&DisMCP&41.1\%&100\%&11.34&0.42&87.4\%&100\%&10.31&0.45&0.45\cr
+			&SCAD&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
+			&DisSCAD&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
+			&$L_1(\phi=1)$&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
+			&Dis$L_1(\phi=1)$&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
+			&$L_1(\phi=2)$&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
+			&Dis$L_1(\phi=2)$&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
+			\bottomrule
+		\end{tabular}
+	\end{threeparttable}
+\end{table}
+\begin{table}[H]
+	\centering
+	\fontsize{5.5}{6}\selectfont
+	\begin{threeparttable}
+		\caption{The mean and standard error (s.e.) shown in parentheses of the square root of the MSE for the estimated values of $\mu$ and $\beta$ by the MCP, SCAD and $L_1$ penalty based on 100 realizations with n=100 and M=5}
+		\label{tab:2}
+		\begin{tabular}{cccccccc}
+			\toprule
+			\multirow{2}{*}{$c$}&\multirow{2}{*}{Method}&
+			\multicolumn{3}{c}{ $\mu$}&\multicolumn{3}{c}{$\beta$}\cr
+			\cmidrule(lr){3-5} \cmidrule(lr){6-8}
+			&&$\alpha=1$&$\alpha=1.5$&$\alpha=2$&$\alpha=1$&$\alpha=1.5$&$\alpha=2$\cr
+			\midrule
+			\multirow{8}{*}{$5$}&\multirow{2}{*}{MCP}&41.1\%&100\%&11.34&0.42&87.4\%&100\%\cr
+			&&(41.1\%)&(100\%)&(11.34)&(0.42)&(87.4\%)&(100\%)\cr
+			&\multirow{2}{*}{SCAD}&41.1\%&100\%&11.34&0.42&87.4\%&100\%\cr
+			&&(41.1\%)&(100\%)&(11.34)&(0.42)&(87.4\%)&(100\%)\cr
+			&\multirow{2}{*}{$L_1(\phi=1)$}&41.1\%&100\%&11.34&0.42&87.4\%&100\%\cr
+			&&(41.1\%)&(100\%)&(11.34)&(0.42)&(87.4\%)&(100\%)\cr
+			&\multirow{2}{*}{$L_1(\phi=2)$}&41.1\%&100\%&11.34&0.42&87.4\%&100\%\cr
+			&&(41.1\%)&(100\%)&(11.34)&(0.42)&(87.4\%)&(100\%)\cr
+			\midrule
+			\multirow{8}{*}{$10$}&\multirow{2}{*}{MCP}&41.1\%&100\%&11.34&0.42&87.4\%&100\%\cr
+			&&(41.1\%)&(100\%)&(11.34)&(0.42)&(87.4\%)&(100\%)\cr
+			&\multirow{2}{*}{SCAD}&41.1\%&100\%&11.34&0.42&87.4\%&100\%\cr
+			&&(41.1\%)&(100\%)&(11.34)&(0.42)&(87.4\%)&(100\%)\cr
+			&\multirow{2}{*}{$L_1(\phi=1)$}&41.1\%&100\%&11.34&0.42&87.4\%&100\%\cr
+			&&(41.1\%)&(100\%)&(11.34)&(0.42)&(87.4\%)&(100\%)\cr
+			&\multirow{2}{*}{$L_1(\phi=2)$}&41.1\%&100\%&11.34&0.42&87.4\%&100\%\cr
+			&&(41.1\%)&(100\%)&(11.34)&(0.42)&(87.4\%)&(100\%)\cr
+			\bottomrule
+		\end{tabular}
+	\end{threeparttable}
+\end{table}
 \section{Real data example}\label{sec:5}
+In this section, we use the Cleveland Heart Disease Dataset to illustrate our method. The Cleveland Clinic Foundation heart disease dataset, contributed to the respository by Robert Detrano, contains 303 observations, 165 of which describe healthy people and 138 sick ones; 7 observations are incomplete, and 2 of the observations of healthy people have identical attribute values. We take the complete observation in our analysis. Each observation is described by 13 attributes, including 3 Boolean(e.g. sex), 4 nominal(e.g. type of chest pain), and 6 numerical(e.g. age). The output indicates the angiographic status of the disease, i.e. whether the narrowing of the vessel diameter is above or below 50\%. Our analysis is to conduct subgroup for the fitted value of thalach as the response $y$ after adjusting for the effects of the covariates: $x_1$=age in year; $x_2$=gender; $x_3$=resting blood pressure; $x_4$=serum cholesterol; $x_5$=fasting blood suger indicator; and $x_6$=resting electrocardiographic result;
+
+In order to simulate hospital data sharing, we artificially distribute the samples in 5 nodes. We fit the heterogeneous model \ref{equ:1}, and we identify subgroups by our proposed two-step fusion penalty approach. We select the tuning parameter by minimizing the modified BIC. As a result, two major groups are identified by both of the MCP and SCAD methods.
+\begin{table}[H]
+	\centering
+	\fontsize{5.5}{6}\selectfont
+	\begin{threeparttable}
+		\caption{The estimated values (est) for the coefficients $\beta$ and $\mu$ by the OLS, MCP and SCAD under stand-alone and distributed environment}
+		\label{tab:3}
+		\begin{tabular}{ccccccccc}
+			\toprule
+			Method&$\beta_1$&$\beta_2$&$\beta_3$&$\beta_4$&$\beta_5$&$\beta_6$&$\mu_1$&$\mu_2$\\
+			\midrule
+			OLS&1&1&1&1&1&1&-&-\\
+			MCP&1&1&1&1&1&1&1&1\\
+			DisMCP&1&1&1&1&1&1&1&1\\
+			SCAD&1&1&1&1&1&1&1&1\\
+			DisSCAD&1&1&1&1&1&1&1&1\\
+			\bottomrule
+		\end{tabular}
+	\end{threeparttable}
+\end{table}
+We also calculate the coefficient of determination $R^2$, and obtain $R^2$ = 0.667, 0.704, 0.704, 0.667 and 0.109 for MCP, DisMCP, SCAD, DisSCAD and OLS methods. We see that taking into account the subgroup structure leads to a significant improvement of the model fitting. We find that for the actual data, even if we artificially distribute them in different nodes, the results obtained by our approach are almost the same as those obtained by concave pairwise fusion approach in a single computer environment.
+\section{Conclusion}
+In this paper, we propose a distributed algorithm named two-step fusion penalty approach to estimate the heterogeneous treatment effects under distributed storage. As an application, we analysis the Cleveland heart disease dataset and we see that our approach leads to a significant improvement of the model fitting.
 \section*{References}
 
 \bibliography{mybibfile}
