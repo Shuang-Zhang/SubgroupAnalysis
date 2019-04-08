@@ -3,6 +3,7 @@
 \usepackage{algorithm}
 \usepackage{algorithmic}
 \usepackage{mathrsfs}
+\usepackage{color}
 \usepackage{amsmath}
 \usepackage{caption}
 \usepackage{graphicx, subfig}
@@ -59,7 +60,13 @@
 \author{}
 
 \begin{abstract}
-Exploration of heterogeneous treatment effects under distributed storage 
+\textcolor{red}{\begin{enumerate}
+		\item Simulation result will be update together with package, the real data will be shown as an example in package.(12/04)
+		\item Coarsen letter of vector and matrix.(13/04)
+		\item Add some analysis about the real data based on model result.(13/04)
+		\item Type the detail of derivation in Appendix.(14/04)
+		\item  Replace figure \ref{fig:1} with distributed result.(12/04)
+\end{enumerate}} 
 \end{abstract}
 
 \begin{keyword}
@@ -71,9 +78,9 @@ subgroup analysis, two-step algorithm, distributed storaged, ADMM
 \linenumbers
 
 \section{Introduction}
-With different industry life cycle stages, the pharmaceutical industry has also produced different medical theories. At present,  based on the individualized characteristics of different patients, individualized medical theory will be an inevitable trend of the medical industry. Complex analytical tools are needed in personalized treatment strategies. One of the key statistical challenges is to correctly identify subgroups from heterogeneous populations. To address this issue, a popular approach is to use a mixture model analysis \cite{everitt1981finite}, treating data as coming from different subgroups, each with its own parameter values. \cite{farewell1982use} analysis the survival data with long-term survivors by mixture model. All along, the mixture model is continuous improvement. \cite{muthen1999finite} discussed the analysis of an extended finite mixture model where the latent classes corresponding to the mixture components for one set of observed variables influence a second set of observed variables. \cite{pauler2000mixture} introduced a general finite mixture of nonlinear hierarchical models that allows estimates of component membership probabilities and random effect distributions for longitudinal data arising from multiple subpopulations. \cite{rasmussen2000infinite} presented the infinite gaussian mixture model. \cite{maugis2009variable} discussed variable selection for clustering with gaussian mixture models. \cite{shen2015inference} proposed a structured logistic-normal mixture model for the purpose of identifying a subgroup that has an enhanced treatment effect as well as the variables that are predictive of the subgroup membership. The mixture model-based approach needs to specify an underlying distribution and the number of mixture components in the population which is often difficult to do in practice. To solve this problem, \cite{ma2017concave} proposed a concave pairwise fusion approach to subgroup analysis. They developed an alternating direction method of multipliers algorithm with concave penalties. With the rapid development of data storage and communication, the medical industry has also developed a new direction. The data exchange between hospitals has improved the accuracy of diagnosis and treatment. So far, statistical research on subgroup analysis has remained at the stand-alone level. There is few approach to do the subgroup analysis over the distributed storaged data. 
+ With the cyclical changes in the industry, many different new theories emerged in the pharmaceutical industry. At present, the individualized medical theory，which is based on the individualized characteristics of different patients, is an inevitable trend of the medical industry, in which complex analytical tools are needed. One of the key statistical challenges is to correctly identify subgroups from heterogeneous populations. To address this issue, a popular approach is to use a mixture model analysis \cite{everitt1981finite}, treating data as coming from different subgroups, each with its own parameter values. \cite{farewell1982use} analysis the survival data with long-term survivors by mixture model. All along, the mixture model is continuous improvement. \cite{muthen1999finite} discussed the analysis of an extended finite mixture model where the latent classes corresponding to the mixture components for one set of observed variables influence a second set of observed variables. \cite{pauler2000mixture} introduced a general finite mixture of nonlinear hierarchical models that allows estimates of component membership probabilities and random effect distributions for longitudinal data arising from multiple subpopulations. \cite{rasmussen2000infinite} presented the infinite gaussian mixture model. \cite{maugis2009variable} discussed variable selection for clustering with gaussian mixture models. \cite{shen2015inference} proposed a structured logistic-normal mixture model for the purpose of identifying a subgroup that has an enhanced treatment effect as well as the variables that are predictive of the subgroup membership. The mixture model-based approach needs to specify an underlying distribution and the number of mixture components in the population which is often difficult to do in practice. To solve this problem, \cite{ma2017concave} proposed a concave pairwise fusion approach to subgroup analysis. They developed an alternating direction method of multipliers algorithm with concave penalties. With the rapid development of data storage and communication, the medical industry has also developed a new direction. The data exchange between hospitals has improved the accuracy of diagnosis and treatment. So far, statistical research on subgroup analysis has remained at the stand-alone level. There is few approach to do the subgroup analysis over the distributed storaged data.
 
-For distributed storage data, we can abstract the computing structure into two parts, one is the master and the other is the workers. All data interactions only occur between the master and the worker and no data communication between workers. The assumption of such a computing environment fits in with the operational logic of the actual distributed computing platform, and on the other hand, the data security of each node can also be guaranteed. more specifically, all sample data only exists in each worker node. There is no sample data in the master, which only do the map-reduce operation, and some necessary calculations after reduce data from all workers.
+For distributed storage data, we can abstract the computing structure into two parts, the master and the workers. All data interactions only occur between the master and each worker. No data communicates among the workers. On one hand, the assumption of such a computing environment fits in with the operational logic of the actual distributed computing platform, on the other hand, the data security of each node can be guaranteed. More specifically, all sample data only exists in each worker node. There is no sample data in the master, which only do the map-reduce operation, and some necessary calculations after reduce data from all the workers.
 
 In this paper, We propose a two-step approach that allows us to minimize the influence of the limitations of data space separation and to perform subgroup analysis from an overall perspective. Let $y_{im}$ be the response variable for the $i^{th}$ subject in $m^{th}$ node. $X_{im}=(x_{im1},...,x_{imp})$ presents a set of covariates. We consider subgroup analysis of the heterogeneity driven by unknown or unobserved latent factors. Hence, we consider
 \begin{equation}
@@ -85,7 +92,7 @@ where $\mu_{im}$ is unknown subject-specific intercepts, $\beta = (\beta_1,...\b
 \label{equ:2}
 y_{im} = \mu+z_{im}^T\theta_{im} + x_{im}^T\beta + \epsilon_{im}, i=1,...,n_m; m=1,...,M.
 \end{equation}
-Throughout this paper, we focus on model\ref{equ:2} by considering that even the samples of one subgroup are distributed storaged, our estimation method can still correctly identify their subgroups. Several authors have studied the problem of exploring homogeneity effects of covariates over a single machine. \cite{ma2017concave} proposed a concave pairwise fusion penalized least squares approach for this purpose and derive an alternating direction method of multipliers algorithm \cite{boyd2011distributed} for implementing the following approach.
+Throughout this paper, we focus on model\ref{equ:2} by considering how to make our estimation method identify the subgroups correctly in distributed storaged circumstance. Several authors have studied the problem of exploring homogeneity effects of covariates over a single machine. \cite{ma2017concave} proposed a concave pairwise fusion penalized least squares approach for this purpose and derive an alternating direction method of multipliers algorithm \cite{boyd2011distributed} for implementing the following approach.
 \begin{equation}
 \label{equ:3}
 Q_n(\mu, \beta;\lambda) = \frac{1}{2}\sum_{i=1}^n(y_i-\mu_i-X_i^T\beta)^2+\sum_{1\leq i<j\leq n}P(|\mu_i-\mu_j|,\lambda),
@@ -96,23 +103,21 @@ as follow.
 \label{equ:4}
 Q_n(\mu, \beta;\lambda) = \frac{1}{2}\sum_{m=1}^M\sum_{i=1}^{n_m}(y_{im}-\mu_{im}-X_{im}^T\beta)^2+\sum_{1\leq i<j\leq \sum_m{n_m}}P(|\mu_{i}-\mu_{j}|,\lambda).
 \end{equation}
-Compared with function \ref{equ:3}, function \ref{equ:4} brings a lot of problems that make the original estimation method malfunction. One problem is that The operation on matrix X becomes unrealizable. Another problem is $|\mu_i-\mu_j|, 1\leq i<j\leq \sum_m{n_m}$ needs a lot of data interaction, almost impossible in actual operation. 
+Compared with function \ref{equ:3}, function \ref{equ:4} brings a lot of problems that make the original estimation method malfunction. One problem is that The operation on matrix X becomes unrealizable. Another problem is $|\mu_i-\mu_j|, 1\leq i<j\leq \sum_m{n_m}$ needs a lot of data interaction, almost impossible in actual operation.
 
-In large-scale data clustering, sampling is an efficient and most widely used approximation technique. \cite{neyman1934two} elaborated on two sampling methods: the method of stratified sampling and the method of purposive selection. Recently, large-scale data analysis is a challenging and relevant task for present-day research and industry. Many statisticians use stratified sampling to subtly solve the problem of large data classification. \cite{cervellera2018distribution} analyzed the technique of stratified sampling from the point of view of distances between probabilities, and introduced an algorithm, based on recursive binary partition of the input space, aimed at obtaining samples that are distributed as much as possible as the original data.  \cite{zhao2019stratified} proposed a stratified sampling based clustering algorithm for large-scale data.
-%在我们的问题中，如何在各医院的数据库中抽取病人观测数据，使得我们可以高效，准确地对各医院共享数据中的全部病人定义亚组。这样可以充分发挥医院数据交互的优势，避免地域性或医院规模带来的样本小，样本不均带来的误诊。
-Therefore, we proposed a two-step fusion penalized algorithm based on ADMM algorithm and stratified sampling. Through the operation of map-reduce and two-step iteration, our algorithm can accurately identity the subgroups of data in each physical node with low computational cost.
+In large-scale data clustering, sampling is an efficient and the most widely used approximation technique. \cite{neyman1934two} elaborated on two sampling methods: the method of stratified sampling and the method of purposive selection. Recently, large-scale data analysis is a challenging and relevant task for present-day research and industry. Many statisticians use stratified sampling to subtly solve the problem of large data classification. \cite{cervellera2018distribution} analyzed the technique of stratified sampling from the point of view of distances between probabilities, and introduced an algorithm, based on recursive binary partition of the input space, aimed at obtaining samples that are distributed as much as possible as the original data.  \cite{zhao2019stratified} proposed a stratified sampling based clustering algorithm for large-scale data. Our concern is how to extract patient observation data from hospital databases so that we can efficiently and accurately define subgroups for all patients in shared data. This can give full play to the advantages of hospital data interaction and avoid misdiagnosis caused by small sample size and uneven sample size. Therefore, we proposed a two-step fusion penalized algorithm based on ADMM algorithm and stratified sampling. Through the operation of map-reduce and two-step iteration, our algorithm can accurately identity the subgroups of data in each physical node with low computational cost.
 
 The rest of this paper is organized as follows. In Section \ref{sec:2} we describe the two-step approach in detail. In Section \ref{sec:3} we solve the two-step approach by ADMM algorithm. In Section\ref{sec:4}, we do some numerical simulation in the spark cluster mode, compared with the calculation results when the data is stored in a single machine. In Section \ref{sec:5}, the real data is distributed at different physical nodes, mimicking the hospital data interoperability.
 
 \section{Two-step Algorithm over distributed storaged data}\label{sec:2}
 For estimate model\ref{equ:1}, the objective function of the concave pairwise fusion penalized least squares
-approach is 
+approach is
 $$
 Q_n(\mu, \beta;\lambda) = \frac{1}{2}\sum_{m=1}^M\sum_{i=1}^{n_m}(y_{im}-\mu_{im}-X_{im}^T\beta)^2+\sum_{1\leq i<j\leq \sum_m{n_m}}P(|\mu_{i}-\mu_{j}|,\lambda).
 $$
-By the idea of ADMM algorithm, we can introduce a new set of parameters to separate the penalty function. But no matter how we introduce the parameters, an problem is that a matrix operation of $X(X^TX)^{-1}X^T$ can not be avoid in updating $u_{im}$ and $\beta$. From a medical perspective, $\beta$ presents the common coefficients for essential variables. This incidates that if the data of a single hospital database is sufficient, maybe we can estimate $\beta$ accurately with $X_m$. However, the study of homogeneity, that is, the estimation of $u_{im}$, requires a comprehensive consideration of hospital data in various regions. Intuitively, the patient is rare for some hospital, but there may be sufficient sample references added up in all hospital data. For such patients, if the data of all hospitals can be comprehensively considered, the subgroup analysis will be more accurate. The essential reason why ADMM can not be used directly to solve the objective function is that it is difficult to calculate the oparation of super-large matrix X. So here we consider stratified sampling, which reduces the observation sample matrix, making the calculation possible. Now the problem  is how stratified sampling to preserve homogeneous distribution. 
+With the idea of ADMM algorithm, we can introduce a new set of parameters to separate the penalty function. But no matter how we introduce the parameters, there is a problem that a matrix operation of $X(X^TX)^{-1}X^T$ can not be avoided in updating $u_{im}$ and $\beta$. From a medical perspective, $\beta$ presents the common coefficients for essential variables. This incidates that if the data of a single hospital database is sufficient, maybe we can estimate $\beta$ accurately with $X_m$. However, the study of homogeneity, also the estimation of $u_{im}$, requires a comprehensive consideration of hospital data in various regions. Intuitively, patients of specific disease may be rare in some hospitals, but there may be sufficient sample references when in all hospital data adds up. If the data of all hospitals can be comprehensively considered, the subgroup analysis will be more accurate for these patients. The essential reason why ADMM can not be used directly to solve the objective function is that it is difficult to calculate the operation of super-large matrix X. So here we consider stratified sampling, which reduces the observation sample matrix, making the calculation possible. Now the problem is how to make stratified sampling preserve homogeneous distribution.
 
-In this paper, we propose a two-step fusion penalized algorithm. Firstly, we apply fusion penalized model in each node to get the hierarchy. The hierarchy obtained by this method can preserve the homogeneous distribution. The objective function in each node is
+In this paper, we propose a two-step fusion penalized algorithm. First, we apply fusion penalized model in each node to get the hierarchy. The hierarchy obtained by this method can preserve the homogeneous distribution. The objective function in each node is
 \begin{equation}
 \label{equ:5}
 Q_{nm}(\mu_m, \beta_m;\lambda) = \frac{1}{2}\sum_{i=1}^{n_m}(y_{im}-\mu_{im}-X_{im}^T\beta_m)^2+\sum_{1\leq i<j\leq n_m}P(|\mu_{im}-\mu_{jm}|,\lambda),
@@ -137,14 +142,14 @@ The set of response variable $y_m$ for the subjects at each node.
 Subject-specific intercepts $\mu_{im}$ of each observation in model \ref{equ:1}.\\
 Common coefficients $\beta$ for $X$ in model \ref{equ:1}.
 
-\STATE Computing $\mu_m,\beta_m: \arg\min\{Q_{nm}(\mu_m, \beta_m;\lambda)\}$ at each node. 
+\STATE Computing $\mu_m,\beta_m: \arg\min\{Q_{nm}(\mu_m, \beta_m;\lambda)\}$ at each node.
 \label{step:1}
 \STATE Reducing $\alpha_k$ and $\mathcal{G}$ from each node and the sampling number $n_k$ of layer $k$ is $ \frac{|\mathcal{G}_k|}{\sum_{k=1}^{K}\mathcal{G_k}}$.
 \label{step:2}
 \STATE Extracting $n_k$ samples $X'_k$ in $\mathcal{G}_k$ at each node for $k=1,...,K$ and reducing to master.
 \label{step:3}
 \STATE Computing $\mu',\beta':\arg\min\{Q_n(\mu,\beta;\lambda)\}$ at master based on $X'$.
-\STATE Let $\beta=\beta'$ for each $X_{im}$ and $y_{im}$ at $m^{th}$ node, $\mu_{im}=\arg\min_{\mu_{im}\in\mu'}(y_{im}-\mu_{im}-X_{im}^T\beta)^2$. 
+\STATE Let $\beta=\beta'$ for each $X_{im}$ and $y_{im}$ at $m^{th}$ node, $\mu_{im}=\arg\min_{\mu_{im}\in\mu'}(y_{im}-\mu_{im}-X_{im}^T\beta)^2$.
 \RETURN $\mu_{im}$ and $\beta$.
 \end{algorithmic}
 \end{algorithm}
@@ -199,8 +204,8 @@ where $v_{ij}$ are the Lagrangian multipliers related to equality constraint $\e
  		\ENDFOR
  	\end{algorithmic}
  \end{algorithm}
-The subproblems \ref{equ:10} to \ref{equ:13} are given in closed form solutions with a broad class of penalties. 
-The detailed derivation is shown in the Appendix A.
+The subproblems \ref{equ:10} to \ref{equ:13} are given in closed form solutions with a broad class of penalties.
+The detailed derivation is shown in the Appendix.
 \section{Simulation studies}\label{sec:4}
 In this paper, the simulation is based on Spark platform. Apache Spark is a fast universal computing engine designed for large-scale data processing. Spark is a general parallel framework of Hadoop MapReduce-like open source in UC Berkeley AMP lab (AMP Lab, University of California, Berkeley). Spark has the advantages of Hadoop MapReduce. But unlike MapReduce, the output of Job can be saved in memory so that it no longer needs to read and write HDFS. So Spark is better suited for data mining and machine learning, the algorithm of MapReduce which needs to be iterated.
 
@@ -238,7 +243,7 @@ We evaluate the algorithm by the model clustering ability, the estimation accura
 \end{enumerate}
 
 Figure \ref{fig:1} shows the solution paths for $\mu$ against $\lambda$ by using MCP, SCAD and weighted $L_1$ penalties with $\phi=0,0.5,1,2$, based on 100 realizations with $n=100$ and $\alpha=2$. 
-\begin{figure}
+\begin{figure}[H]
 \caption{Solution paths for $(\mu_1,...,\mu_n)$ against $\lambda$ values by using MCP, SCAD and weighted L1 penalties}
 \label{fig:1}
 \centering
@@ -259,23 +264,23 @@ From Table \ref{tab:1}, we compare the results of two algorithms in different co
 			\cmidrule(lr){3-5} \cmidrule(lr){6-8}\cmidrule(lr){9-11}
 			&&mean&median&s.e.&mean&median&s.e.&mean&median&s.e.\cr
 			\midrule
-			\multirow{8}{*}{$5$}&MCP&41.1\%&100\%&11.34&0.42&87.4\%&100\%&10.31&0.45&0.45\cr
-			&DisMCP&41.1\%&100\%&11.34&0.42&87.4\%&100\%&10.31&0.45&0.45\cr
-			&SCAD&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
-			&DisSCAD&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
-			&$L_1(\phi=1)$&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
-			&Dis$L_1(\phi=1)$&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
-			&$L_1(\phi=2)$&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
-			&Dis$L_1(\phi=2)$&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
+			\multirow{8}{*}{$5$}&MCP&&&&&&&&&\cr
+			&DisMCP&&&&&&&&&\cr
+			&SCAD&&&&&&&&&\cr
+			&DisSCAD&&&&&&&&&\cr
+			&$L_1(\phi=1)$&&&&&&&&&\cr
+			&Dis$L_1(\phi=1)$&&&&&&&&&\cr
+			&$L_1(\phi=2)$&&&&&&&&&\cr
+			&Dis$L_1(\phi=2)$&&&&&&&&&\cr
 			\midrule
-			\multirow{8}{*}{$10$}&MCP&41.1\%&100\%&11.34&0.42&87.4\%&100\%&10.31&0.45&0.45\cr
-			&DisMCP&41.1\%&100\%&11.34&0.42&87.4\%&100\%&10.31&0.45&0.45\cr
-			&SCAD&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
-			&DisSCAD&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
-			&$L_1(\phi=1)$&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
-			&Dis$L_1(\phi=1)$&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
-			&$L_1(\phi=2)$&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
-			&Dis$L_1(\phi=2)$&20.2\%&100\%&17.73&2.30&88.2\%&100\%&13.71&2.21&0.45\cr
+			\multirow{8}{*}{$10$}&MCP&&&&&&&&&\cr
+			&DisMCP&&&&&&&&&\cr
+			&SCAD&&&&&&&&&\cr
+			&DisSCAD&&&&&&&&&\cr
+			&$L_1(\phi=1)$&&&&&&&&&\cr
+			&Dis$L_1(\phi=1)$&&&&&&&&&\cr
+			&$L_1(\phi=2)$&&&&&&&&&\cr
+			&Dis$L_1(\phi=2)$&&&&&&&&&\cr
 			\bottomrule
 		\end{tabular}
 	\end{threeparttable}
@@ -293,23 +298,23 @@ From Table \ref{tab:1}, we compare the results of two algorithms in different co
 			\cmidrule(lr){3-5} \cmidrule(lr){6-8}
 			&&$\alpha=1$&$\alpha=1.5$&$\alpha=2$&$\alpha=1$&$\alpha=1.5$&$\alpha=2$\cr
 			\midrule
-			\multirow{8}{*}{$5$}&\multirow{2}{*}{MCP}&41.1\%&100\%&11.34&0.42&87.4\%&100\%\cr
-			&&(41.1\%)&(100\%)&(11.34)&(0.42)&(87.4\%)&(100\%)\cr
-			&\multirow{2}{*}{SCAD}&41.1\%&100\%&11.34&0.42&87.4\%&100\%\cr
-			&&(41.1\%)&(100\%)&(11.34)&(0.42)&(87.4\%)&(100\%)\cr
-			&\multirow{2}{*}{$L_1(\phi=1)$}&41.1\%&100\%&11.34&0.42&87.4\%&100\%\cr
-			&&(41.1\%)&(100\%)&(11.34)&(0.42)&(87.4\%)&(100\%)\cr
-			&\multirow{2}{*}{$L_1(\phi=2)$}&41.1\%&100\%&11.34&0.42&87.4\%&100\%\cr
-			&&(41.1\%)&(100\%)&(11.34)&(0.42)&(87.4\%)&(100\%)\cr
+			\multirow{8}{*}{$5$}&\multirow{2}{*}{MCP}&&&&&&\cr
+			&&&&&&&\cr
+			&\multirow{2}{*}{SCAD}&&&&&&\cr
+			&&&&&&&\cr
+			&\multirow{2}{*}{$L_1(\phi=1)$}&&&&&&\cr
+			&&&&&&&\cr
+			&\multirow{2}{*}{$L_1(\phi=2)$}&&&&&&\cr
+			&&&&&&&\cr
 			\midrule
-			\multirow{8}{*}{$10$}&\multirow{2}{*}{MCP}&41.1\%&100\%&11.34&0.42&87.4\%&100\%\cr
-			&&(41.1\%)&(100\%)&(11.34)&(0.42)&(87.4\%)&(100\%)\cr
-			&\multirow{2}{*}{SCAD}&41.1\%&100\%&11.34&0.42&87.4\%&100\%\cr
-			&&(41.1\%)&(100\%)&(11.34)&(0.42)&(87.4\%)&(100\%)\cr
-			&\multirow{2}{*}{$L_1(\phi=1)$}&41.1\%&100\%&11.34&0.42&87.4\%&100\%\cr
-			&&(41.1\%)&(100\%)&(11.34)&(0.42)&(87.4\%)&(100\%)\cr
-			&\multirow{2}{*}{$L_1(\phi=2)$}&41.1\%&100\%&11.34&0.42&87.4\%&100\%\cr
-			&&(41.1\%)&(100\%)&(11.34)&(0.42)&(87.4\%)&(100\%)\cr
+			\multirow{8}{*}{$10$}&\multirow{2}{*}{MCP}&&&&&&\cr
+			&&&&&&&\cr
+			&\multirow{2}{*}{SCAD}&&&&&&\cr
+			&&&&&&&\cr
+			&\multirow{2}{*}{$L_1(\phi=1)$}&&&&&&\cr
+			&&&&&&&\cr
+			&\multirow{2}{*}{$L_1(\phi=2)$}&&&&&&\cr
+			&&&&&&&\cr
 			\bottomrule
 		\end{tabular}
 	\end{threeparttable}
@@ -328,20 +333,20 @@ In order to simulate hospital data sharing, we artificially distribute the sampl
 			\toprule
 			Method&$\beta_1$&$\beta_2$&$\beta_3$&$\beta_4$&$\beta_5$&$\beta_6$&$\mu_1$&$\mu_2$\\
 			\midrule
-			OLS&1&1&1&1&1&1&-&-\\
-			MCP&1&1&1&1&1&1&1&1\\
-			DisMCP&1&1&1&1&1&1&1&1\\
-			SCAD&1&1&1&1&1&1&1&1\\
-			DisSCAD&1&1&1&1&1&1&1&1\\
+			OLS&&&&&&&-&-\\
+			MCP&&&&&&&&\\
+			DisMCP&&&&&&&&\\
+			SCAD&&&&&&&&\\
+			DisSCAD&&&&&&&&\\
 			\bottomrule
 		\end{tabular}
 	\end{threeparttable}
 \end{table}
-We also calculate the coefficient of determination $R^2$, and obtain $R^2$ = 0.667, 0.704, 0.704, 0.667 and 0.109 for MCP, DisMCP, SCAD, DisSCAD and OLS methods. We see that taking into account the subgroup structure leads to a significant improvement of the model fitting. We find that for the actual data, even if we artificially distribute them in different nodes, the results obtained by our approach are almost the same as those obtained by concave pairwise fusion approach in a single computer environment.
+We also calculate the coefficient of determination $R^2$, and obtain $R^2$ = \textcolor{red}{XXX,XXX,XXX,XXX and XXX} for MCP, DisMCP, SCAD, DisSCAD and OLS methods. We see that taking into account the subgroup structure leads to a significant improvement of the model fitting. We find that for the actual data, even if we artificially distribute them in different nodes, the results obtained by our approach are almost the same as those obtained by concave pairwise fusion approach in a single computer environment.
 \section{Conclusion}
 The continued push for nationwide interoperability has helped fuel the growth of secure healthcare data sharing. Covered entities and business associates are exploring how to enhance patient care by engaging in health information exchange (HIE). Genetic studies,  population health management, larger-scale analytics are some potential uses for data sharing. On the other hand, with the continuous development of industry, individual medical has become an inevitable trend. We focus on how to make individual medical care more accurate on the premise of HIE. In this paper, we propose a distributed algorithm named two-step fusion penalty approach to estimate the heterogeneous treatment effects under distributed storage. Our method allows us to ignore the impact of data storage separation when calculating heterogeneous effects. At the same time, our algorithm guarantees the computational efficiency because of its minimal interactive consumption. In the numerical simulation, we find that our algorithm in the distributed storage environment performs almost as well as concave pairwise fusion approach in stand-alone environment. As an application, we analysis the Cleveland heart disease dataset and we see that our approach leads to a significant improvement of the model fitting. The related package 2FusPen are available at ...
 \section{Appendix}
-In this Appendix, we describe the detail derivation of some updated computations in detailed algorithm \ref{alg:2}.
+In this Appendix, we describe the detail derivation of some updated computations in detailed algorithm \ref{alg:2}. For simplicity of calculation, we set $a_{ij}=a$.
 \subsection{Update $\mu^{(k+1)}$ and $\beta^{(k+1)}$}
 Hence 
 $$
@@ -354,9 +359,38 @@ which implies
 $$
 \mu^{(k+1)}=\arg\min_{\mu}\left\{\frac{1}{2}\sum_{i=1}^n(y_i-\mu_i-X_i^T\beta)^2+\sum_{1\leq i<j\leq n}(\frac{a_{ij}}{2}\lVert \mu_i-\mu_j-\eta_{ij}\rVert+<\mu_i-\mu_j-\eta_{ij}, v_{ij}>)\right\}.
 $$
+...
+$$
+\mu^{(k+1)}=(I+a\Delta^T\Delta-Q_X)^{-1}\left\{(I-Q_X)y+a\Delta^T(\eta^{k}-a^{-1}v^{(k)})\right\},
+$$
+where $Q_X=X(X^TX)^{-1}X^T$, $\Delta=\left\{(e_i-e_j), i<j\right\}^T$ and $e_i$ is the $i$th unit $n\times 1$ vector whose $i$th element is 1 and the remaining ones are 0.
 
+$$
+\beta^{(k+1)}=(X^X)^{-1}X^T(y-\mu^{k+1})
+$$
 \subsection{Update $\eta^{(k+1)}$}
-
+Let $\delta_{ij}=\mu_i-\mu_j+a^{-1}v_{ij}$ and $ST(t,\lambda)=sign(t)(|t|-\lambda)_+$
+$L_1$ penalty:
+$$\hat{\eta}_{ij}=ST(\delta_{ij},\lambda/a)$$
+MCP:
+$$
+\hat{\eta}_{ij}=\left\{
+\begin{array}{lcl}
+\frac{ST(\delta_{ij},\lambda/a)}{1-1/(\gamma a)}&&if |\delta_{ij}|\leq \gamma\lambda\\
+\delta_{ij}&&if |\delta_{ij}|>\gamma\lambda
+\end{array}
+\right.
+$$
+SCAD:
+$$
+\hat{\eta}_{ij}=\left\{
+\begin{array}{lcl}
+ST(\delta_{ij},\lambda/a)&&if|\delta_{ij}|\leq\lambda+\lambda/a\\
+\frac{ST(\delta_{ij},\gamma\lambda/((\gamma-1)a))}{1-1/((\gamma-1)a)}&&if \lambda+\lambda/a<|\delta_{ij}|\leq \gamma\lambda\\
+\delta_{ij}&&if |\delta_{ij}|>\gamma\lambda
+\end{array}
+\right.
+$$
 \section*{References}
 
 \bibliography{mybibfile}
