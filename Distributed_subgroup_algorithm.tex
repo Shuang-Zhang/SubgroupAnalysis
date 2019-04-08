@@ -172,8 +172,8 @@ L_{a_{11},...,a_{1n},...,a_{nn}}&=\frac{1}{2}\sum_{i=1}^n(y_i-\mu_i-X_i^T\beta)^
 \end{equation}
 where $v_{ij}$ are the Lagrangian multipliers related to equality constraint $\eta_{ij}=\mu_i-\mu_j$ for $1\leq i<j\leq n$, and $a_{ij}$ are the corresponding positive penalties parameters. The algorithm for solving \ref{equ:9} updates the primal variables $\mu$, $\beta$, $\eta$ via block coordinate descent in a closed form and updates dual variables $v_{ij}$ via one step gradient ascent. we state the details of this algorithm in algorithm \ref{alg:2}.
  \begin{algorithm}[H]
- 	\label{alg:2}
  	\caption{Minimize $Q_n(\mu,\beta;\lambda)$}
+ 	\label{alg:2}
  	\begin{algorithmic}[1]
  		\REQUIRE
  		Fix the values of $\lambda$, $a_{ij}$,  maximum iteration number $\textrm{It}_{\max}$, and initial values of  $\mu_{ij}^0$,$\beta^0$,$\eta_{ij}^0$ and $v_{ij}^0$.
@@ -339,7 +339,24 @@ In order to simulate hospital data sharing, we artificially distribute the sampl
 \end{table}
 We also calculate the coefficient of determination $R^2$, and obtain $R^2$ = 0.667, 0.704, 0.704, 0.667 and 0.109 for MCP, DisMCP, SCAD, DisSCAD and OLS methods. We see that taking into account the subgroup structure leads to a significant improvement of the model fitting. We find that for the actual data, even if we artificially distribute them in different nodes, the results obtained by our approach are almost the same as those obtained by concave pairwise fusion approach in a single computer environment.
 \section{Conclusion}
-In this paper, we propose a distributed algorithm named two-step fusion penalty approach to estimate the heterogeneous treatment effects under distributed storage. As an application, we analysis the Cleveland heart disease dataset and we see that our approach leads to a significant improvement of the model fitting.
+The continued push for nationwide interoperability has helped fuel the growth of secure healthcare data sharing. Covered entities and business associates are exploring how to enhance patient care by engaging in health information exchange (HIE). Genetic studies,  population health management, larger-scale analytics are some potential uses for data sharing. On the other hand, with the continuous development of industry, individual medical has become an inevitable trend. We focus on how to make individual medical care more accurate on the premise of HIE. In this paper, we propose a distributed algorithm named two-step fusion penalty approach to estimate the heterogeneous treatment effects under distributed storage. Our method allows us to ignore the impact of data storage separation when calculating heterogeneous effects. At the same time, our algorithm guarantees the computational efficiency because of its minimal interactive consumption. In the numerical simulation, we find that our algorithm in the distributed storage environment performs almost as well as concave pairwise fusion approach in stand-alone environment. As an application, we analysis the Cleveland heart disease dataset and we see that our approach leads to a significant improvement of the model fitting. The related package 2FusPen are available at ...
+\section{Appendix}
+In this Appendix, we describe the detail derivation of some updated computations in detailed algorithm \ref{alg:2}.
+\subsection{Update $\mu^{(k+1)}$ and $\beta^{(k+1)}$}
+Hence 
+$$
+\begin{aligned}
+L=&\frac{1}{2}\sum_{i=1}^n(y_i-\mu_i-X_i^T\beta)^2+\sum_{1\leq i<j\leq n}P(|\eta_{ij}|,\lambda)\\
+&+\sum_{1\leq i<j\leq n}(\frac{a_{ij}}{2}\lVert \mu_i-\mu_j-\eta_{ij}\rVert+<\mu_i-\mu_j-\eta_{ij}, v_{ij}>)
+\end{aligned}
+$$
+which implies
+$$
+\mu^{(k+1)}=\arg\min_{\mu}\left\{\frac{1}{2}\sum_{i=1}^n(y_i-\mu_i-X_i^T\beta)^2+\sum_{1\leq i<j\leq n}(\frac{a_{ij}}{2}\lVert \mu_i-\mu_j-\eta_{ij}\rVert+<\mu_i-\mu_j-\eta_{ij}, v_{ij}>)\right\}.
+$$
+
+\subsection{Update $\eta^{(k+1)}$}
+
 \section*{References}
 
 \bibliography{mybibfile}
